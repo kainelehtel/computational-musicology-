@@ -1,29 +1,55 @@
 ---
-title: "computational musicology"
+title: "wk 7 computational musicology"
 output: html_document
 date: "2024-02-14"
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r, setup}
+library(ggplot2)
+library(tidyverse)
+library(spotifyr)
 ```
 
-## R Markdown test
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r}
+The_Miseducation_of_Lauryn_Hill <- get_playlist_audio_features("","7LgTeZfYx6A0h5qEim55ni")
+Brand_New_Life <- get_playlist_audio_features("", "4M9DgKekhGMptk6mx9ceyx")
+Harp_Hip_Hop <- get_playlist_audio_features("", "2BwoJ5XofWPU8t6DaTx2Ll")
 ```
 
-## Including Plots
+```{r}
+playlists <- bind_rows(
+  The_Miseducation_of_Lauryn_Hill %>% mutate(category = "The_Miseducation_of_Lauryn_Hill"),
+  Brand_New_Life %>% mutate(category = "Brand_New_Life"),
+  Harp_Hip_Hop %>% mutate(category = "Harp_Hip_Hop")
+)
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+str(playlists)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+playlists_summary <- playlists %>%
+  summarise(
+    mean_energy = mean(energy),
+    mean_instrumentalness = mean(instrumentalness),
+    mean_tempo = mean(tempo),
+    sd_energy = sd(energy),
+    sd_instrumentalness = sd(instrumentalness),
+    sd_tempo = sd(tempo),
+    median_energy = median(energy),
+    median_instrumentalness = median(instrumentalness),
+    median_tempo = median(tempo),
+    mad_energy = mad(energy),
+    mad_instrumentalness = mad(instrumentalness),
+    mad_tempo = mad(tempo)
+  )
+```
+
+```{r}
+print(playlists_summary)
+```
+
+```{r}
+ggplot(playlists) +
+  geom_point(aes(x = tempo, y = energy, color = category)) +
+  geom_smooth(aes(x = tempo, y = energy, group = category, color = category), method = 'loess', formula = 'y ~ x')
+```
