@@ -2,29 +2,76 @@
 title: "comp_music_W8"
 author: "Ethel Kaien"
 date: "2024-02-22"
-output: html_document
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+    storyboard: true
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+library(flexdashboard)
+library(ggplot2)
+library(tidyverse)
+library(spotifyr)
+library(readr)
+library(leaflet)
+library(DT)
+library(tidyverse)
+library(lubridate)
+library(plotly)
+
+The_Miseducation_of_Lauryn_Hill <- get_playlist_audio_features("","7LgTeZfYx6A0h5qEim55ni")
+Brand_New_Life <- get_playlist_audio_features("", "4M9DgKekhGMptk6mx9ceyx")
+Harp_Hip_Hop <- get_playlist_audio_features("", "2BwoJ5XofWPU8t6DaTx2Ll")
+
+playlists <- bind_rows(
+  The_Miseducation_of_Lauryn_Hill %>% mutate(category = "The_Miseducation_of_Lauryn_Hill"),
+  Brand_New_Life %>% mutate(category = "Brand_New_Life"),
+  Harp_Hip_Hop %>% mutate(category = "Harp_Hip_Hop")
+)
+
+str(playlists)
+
+specific_playlist <- playlists %>%
+  filter(category == "The_Miseducation_of_Lauryn_Hill")
 ```
 
-## R Markdown
+Analysis {.storyboard}
+=========================================
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+### Introduction: How has the incorporation of the harp in “The Miseducation of Lauryn Hill” influenced contemporary Hip Hop styles of today?
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r static_plot, fig.width=10, fig.height=6, echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(specific_playlist) +
+  geom_point(aes(x = tempo, y = energy, color = category)) +
+  geom_smooth(aes(x = tempo, y = energy, group = category, color = category), method = 'loess', formula = 'y ~ x') +
+  ggtitle("The_Miseducation_of_Lauryn_Hill Playlist")
 ```
 
-## Including Plots
+*** 
+Following her departure from the Fugees, Lauryn Hill debuted a solo album titled – "The Miseducation of Lauryn Hill," released in 1998, which features a diverse range of musical elements; notably the harp which stemmed a prominent feature throughout the album; its incorporation contributing largely to Miseducation’s unique sound – an amalgamation of R&B, hip-hop, reggae, and soul. The album showcased Lauryn Hill's versatility as an artist as she challenged the boundaries of traditional hip-hop by repurposing a classical instrument such as the harp in tracks like "Every Ghetto, Every City", "Forgive Them Father", “When it Hurts So Bad’, “Final Hour” etc. The harp contributes to the album’s soulful yet intricate sound and overall cohesiveness. The harp's inclusion reflects her commitment to musical experimentation and her desire to push boundaries in hip-hop and r&b. Her ability to incorporate such unconventional elements into the world of hip-hop proves to us the tactful yet audacious nature as demonstrated by Ms. Hill. It is safe to say that this album has brought forth a level of influence amongst other contemporary artists of today.
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+
+Harpin' Out With Lauryn Hill {data-height=700} 
+-----------------------------------------------------------------------
+
+### The Harp according to hip-hop
+
+```{r}
+
+ggplot(playlists) +
+  geom_point(aes(x = tempo, y = energy, color = category)) +
+  geom_smooth(aes(x = tempo, y = energy, group = category, color = category), method = 'loess', formula = 'y ~ x')
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+***
+Like Lauryn Hill, Brandee Younger on the other hand being a contemporary harpist herself transforms the rare classical instrument into an instrument of the contemporary genres of R&B, hip-hop and jazz. Her album “Brand New Life” pays tribute to one of the OG ‘Hip-Harpists’ and pioneering jazz harpist, Dorothy Ashby. Ashby played a significant role in expanding the possibilities of the harp as a jazz instrument and contributed to the genre's evolution. The torch of evolution has since been passed on to Younger as she transports the harp into the hip-hop and r&b scene through collaborations with other renowned artists such as Drake, Beyonce, Josh Groban, and Lauryn Hill herself.
+
+### Conclusion
+
+As a harpist, I am interested in the way that these women have reinvented the traditional sound of this classical instrument, and how they have paved a way for the harp in contemporary or even mainstream music. My aim is to analyse the different ways in which the Harp has been incorporated into contemporary hip-hop, with Lauryn Hill at the heart of my corpus. I intend to explore the similarities in terms of sound, and how it is coupled with its contemporary hip-hop and r&b counterparts through its energy, instrumentalness, and tempo.
+
+Needless to say, the corpus showcases a very interesting set of results with respect to each of the playlists' energy and tempo. In terms of energy, the graph shows that The Miseducation of Lauryn Hill displays a neutral fluctuation of energy levels, that peaks at an estimated 0.688 and drops at 0.375. In comparison to the playlist titled, 'harp hip-hip' consisting hip-hip songs that range from the 90's to the present such as 'Making Moves with Puff', 'Things Done Changed', '10 2 10', etc.; this playlist starts off with a peak of 0.875, and its lowest point at 0.499. Younger's album 'Brand New Life' on the other hand displays a lower range in energy; its lowest at 0.083, and its highest at 0.5. In terms of tempo, Ms. Hill's display shows the widest range which stretches from 75 bpm, to 172 bpm. 'Harp Hip Hop' ranges between 82.5 bpm to 140 bpm, and 'Brand New Life' which ranges between 65 bpm to 140 bpm. 
+
