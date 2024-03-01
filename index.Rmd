@@ -1,5 +1,5 @@
 ---
-title: "comp_music_W8"
+title: "CompMusicPortfolio"
 author: "Ethel Kaien"
 date: "2024-02-22"
 output: 
@@ -20,6 +20,7 @@ library(DT)
 library(tidyverse)
 library(lubridate)
 library(plotly)
+library(compmus)
 
 The_Miseducation_of_Lauryn_Hill <- get_playlist_audio_features("","7LgTeZfYx6A0h5qEim55ni")
 Brand_New_Life <- get_playlist_audio_features("", "4M9DgKekhGMptk6mx9ceyx")
@@ -75,3 +76,76 @@ As a harpist, I am interested in the way that these women have reinvented the tr
 
 Needless to say, the corpus showcases a very interesting set of results with respect to each of the playlists' energy and tempo. In terms of energy, the graph shows that The Miseducation of Lauryn Hill displays a neutral fluctuation of energy levels, that peaks at an estimated 0.688 and drops at 0.375. In comparison to the playlist titled, 'harp hip-hip' consisting hip-hip songs that range from the 90's to the present such as 'Making Moves with Puff', 'Things Done Changed', '10 2 10', etc.; this playlist starts off with a peak of 0.875, and its lowest point at 0.499. Younger's album 'Brand New Life' on the other hand displays a lower range in energy; its lowest at 0.083, and its highest at 0.5. In terms of tempo, Ms. Hill's display shows the widest range which stretches from 75 bpm, to 172 bpm. 'Harp Hip Hop' ranges between 82.5 bpm to 140 bpm, and 'Brand New Life' which ranges between 65 bpm to 140 bpm. 
 
+### Chromagram: Lauryn Hill
+
+```{r}
+When_it_hurts_so_bad <-
+    get_tidy_audio_analysis("3CNSWn2mISh7Ll3yJQbVEw") |>
+    select(segments) |>
+    unnest(segments) |>
+    select(start, duration, pitches)
+When_it_hurts_so_bad |>
+    mutate(pitches = map(pitches, compmus_normalise, "euclidean")) |>
+    compmus_gather_chroma() |>
+    ggplot(
+      aes(
+          x = start + duration / 2,
+          width = duration,
+          y = pitch_class,
+          fill = value
+        )
+      ) +
+      geom_tile() +
+      labs(x = "Time (s)", y = NULL, fill = "Magnitude") +
+      theme_minimal() +
+      scale_fill_viridis_c()
+```
+
+***
+
+For my chromagram, I decided to use the song 'When It Hurts So Bad' by Lauryn Hill, and structured the chromagram through the euclidean format. My reason in doing so, is because I felt that this format was easiest to understand. 
+
+### DTW: Kanye West
+
+```{r}
+## All Falls Down (2004)
+Kanye_west_live <-
+get_tidy_audio_analysis("1Mj2wJxQaMq00HfYAkLCz6") |>
+select(segments) |>
+unnest(segments) |>
+select(start, duration, pitches)
+
+## All_Falls_Down_original (2005)
+Kanye_west_studio <-
+get_tidy_audio_analysis("5SkRLpaGtvYPhw02vZhQQ9") |>
+select(segments) |>
+unnest(segments) |>
+select(start, duration, pitches)
+```
+
+```{r}
+compmus_long_distance(
+  Kanye_west_live |> mutate(pitches = map(pitches, compmus_normalise, "chebyshev")),
+  Kanye_west_studio |> mutate(pitches = map(pitches, compmus_normalise, "chebyshev")),
+  feature = pitches,
+  method = "euclidean"
+) |>
+  ggplot(
+    aes(
+      x = xstart + xduration / 2,
+      width = xduration,
+      y = ystart + yduration / 2,
+      height = yduration,
+      fill = d
+    )
+  ) +
+  geom_tile() +
+  coord_equal() +
+  labs(x = "Kanye West Live", y = "Kanye West Studio") +
+  theme_minimal() +
+  scale_fill_viridis_c(guide = NULL)
+```
+
+***
+
+In this Dynamic time warping graph, I decided to work with Kanye West's 'All Falls Down' as he sampled one of Lauryn Hill's songs titled - 'Mystery of Iniquity'. I chose to analyse this song as I was curious to see how different an artist would repurpose and interpret one of Hill's songs in a different manner. From there, I wanted to see how differently they would appear in its studio versus its live version.
