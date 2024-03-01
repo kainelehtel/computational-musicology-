@@ -9,8 +9,6 @@ output:
     storyboard: true
 ---
 
----
-
 ```{r setup, include=FALSE}
 library(flexdashboard)
 library(ggplot2)
