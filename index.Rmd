@@ -41,6 +41,188 @@ specific_playlist <- playlists %>%
 Analysis {.storyboard}
 =========================================
 
+### W11, comparing tempo curves - by the time i get to phoenix
+
+```{r}
+By_The_Time_I_Get_To_Phoenix_JimmyWebb <-
+  get_tidy_audio_analysis("2vfLu81LYr5ARMmUTplLD7") |>
+  select(segments) |>
+  unnest(segments)
+
+By_The_Time_I_Get_To_Phoenix_JimmyWebb |>
+  mutate(loudness_max_time = start + loudness_max_time) |>
+  arrange(loudness_max_time) |>
+  mutate(delta_loudness = loudness_max - lag(loudness_max)) |>
+  ggplot(aes(x = loudness_max_time, y = pmax(0, delta_loudness))) +
+  geom_line() +
+  xlim(0, 30) +
+  theme_minimal() +
+  labs(x = "Time (s)", y = "Novelty")
+```
+
+***
+
+analysis of novelty function goes here
+
+```{r}
+By_The_Time_I_Get_To_Phoenix_DA <-
+  get_tidy_audio_analysis("0l2k4tdemioYYKIDtEv21c") |> # Change URI.
+  compmus_align(bars, segments) |>                     # Change `bars`
+  select(bars) |>                                      #   in all three
+  unnest(bars) |>                                      #   of these lines.
+  mutate(
+    pitches =
+      map(segments,
+        compmus_summarise, pitches,
+        method = "rms", norm = "euclidean"              # Change summary & norm.
+      )
+  ) |>
+  mutate(
+    timbre =
+      map(segments,
+        compmus_summarise, timbre,
+        method = "rms", norm = "euclidean"              # Change summary & norm.
+      )
+  )
+
+By_The_Time_I_Get_To_Phoenix_DA |>
+  compmus_self_similarity(timbre, "cosine") |> 
+  ggplot(
+    aes(
+      x = xstart + xduration / 2,
+      width = xduration,
+      y = ystart + yduration / 2,
+      height = yduration,
+      fill = d
+    )
+  ) +
+  geom_tile() +
+  coord_fixed() +
+  scale_fill_viridis_c(guide = "none") +
+  theme_classic() +
+  labs(x = "", y = "")
+```
+
+### W11, Novelty Functions of Holy Lands
+
+```{r}
+Holy_Lands <-
+  get_tidy_audio_analysis("0RG3Op4mFYBKtQmsPVLqBz") |>
+  select(segments) |>
+  unnest(segments)
+
+Holy_Lands |>
+  mutate(loudness_max_time = start + loudness_max_time) |>
+  arrange(loudness_max_time) |>
+  mutate(delta_loudness = loudness_max - lag(loudness_max)) |>
+  ggplot(aes(x = loudness_max_time, y = pmax(0, delta_loudness))) +
+  geom_line() +
+  xlim(0, 30) +
+  theme_minimal() +
+  labs(x = "Time (s)", y = "Novelty")
+```
+
+### W11, tempogram of Holy Lands
+```{r}
+Holy_Lands <- get_tidy_audio_analysis("7vvEe4KVLECYTHIT15NW1K")
+
+Holy_Lands |>
+  tempogram(window_size = 8, hop_size = 1, cyclic = FALSE) |>
+  ggplot(aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +
+  labs(x = "Time (s)", y = "Tempo (BPM)") +
+  theme_classic()
+```
+
+***
+
+analysis of tempogram goes here
+
+### W11, Key Histogram - Lauryn Hill and harp in hip hop
+```{r}
+Harp_Hip_Hop <- get_playlist_audio_features("", "2BwoJ5XofWPU8t6DaTx2Ll")
+The_Miseducation_of_Lauryn_Hill <- get_playlist_audio_features("", "7LgTeZfYx6A0h5qEim55ni")
+
+Harp_Hip_Hop$category = "Harp in Hip-Hop"
+The_Miseducation_of_Lauryn_Hill$category = "Lauryn Hill"
+
+combined <- rbind(Harp_Hip_Hop, The_Miseducation_of_Lauryn_Hill)
+
+compare_data <-
+  bind_rows(
+    Harp_Hip_Hop |> mutate(category = "Harp in Hip-Hop"),
+    The_Miseducation_of_Lauryn_Hill |> mutate(category = "The Miseducation of Lauryn Hill")
+  )
+
+ggplot(combined, aes(x = tempo, fill = category)) +
+  geom_histogram() +
+  facet_wrap(~category, scales = 'free') +
+  labs(title = "Histogram of tempo") + 
+  theme_minimal()
+```
+
+***
+
+analysis of histogram goes here
+
+### W10, Outliers of Lauryn Hill and Brandee Younger
+```{r}
+The_Miseducation_of_Lauryn_Hill <-
+  get_playlist_audio_features(
+    "",
+    "7LgTeZfYx6A0h5qEim55ni"
+  ) |>
+  slice(1:30) |>
+  add_audio_analysis()
+This_Is_Brandee_Younger <-
+  get_playlist_audio_features(
+    "",
+    "0zOVFcifZ9noFcCNOnJDv2"
+  ) |>
+  slice(1:30) |>
+  add_audio_analysis()
+outliers <-
+  The_Miseducation_of_Lauryn_Hill |>
+  mutate(genre = "The_Miseducation_of_Lauryn_Hill") |>
+  bind_rows(This_Is_Brandee_Younger |> mutate(genre = "This_Is_Brandee_Younger"))
+
+outliers |>
+  mutate(
+    sections =
+      map(
+        sections,                                    # sections or segments
+        summarise_at,
+        vars(tempo, loudness, duration),             # features of interest
+        list(section_mean = mean, section_sd = sd)   # aggregation functions
+      )
+  ) |>
+  unnest(sections) |>
+  ggplot(
+    aes(
+      x = tempo,
+      y = tempo_section_sd,
+      colour = genre,
+      alpha = loudness
+    )
+  ) +
+  geom_point(aes(size = duration / 60)) +
+  geom_rug() +
+  theme_minimal() +
+  ylim(0, 5) +
+  labs(
+    x = "Mean Tempo (bpm)",
+    y = "SD Tempo",
+    colour = "Genre",
+    size = "Duration (min)",
+    alpha = "Volume (dBFS)"
+  )
+```
+
+***
+
+analysis of outliers goes here
+
 ### W10, Key Histogram - Lauryn Hill and Brandee Younger
 ```{r}
 This_Is_Brandee_Younger <- get_playlist_audio_features("", "0zOVFcifZ9noFcCNOnJDv2")
