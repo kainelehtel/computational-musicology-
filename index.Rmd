@@ -1,7 +1,7 @@
 ---
-title: "CompMusicPortfolio"
+title: "Harpin' Out With Lauryn Hill"
 author: "Ethel Kaien"
-date: "2024-02-22"
+date: "2024"
 output: 
   flexdashboard::flex_dashboard:
     orientation: columns
@@ -9,7 +9,7 @@ output:
     storyboard: true
 ---
 
-```{r setup, include=FALSE}
+```{r first, include=FALSE}
 library(flexdashboard)
 library(ggplot2)
 library(tidyverse)
@@ -21,15 +21,20 @@ library(tidyverse)
 library(lubridate)
 library(plotly)
 library(compmus)
+library(tidymodels)
+library(ggdendro)
+library(heatmaply)
 
 The_Miseducation_of_Lauryn_Hill <- get_playlist_audio_features("","7LgTeZfYx6A0h5qEim55ni")
 Brand_New_Life <- get_playlist_audio_features("", "4M9DgKekhGMptk6mx9ceyx")
 Harp_Hip_Hop <- get_playlist_audio_features("", "2BwoJ5XofWPU8t6DaTx2Ll")
+Classical_Harp_Mix <- get_playlist_audio_features("", "37i9dQZF1EIctTeUcn23Rp")
 
 playlists <- bind_rows(
   The_Miseducation_of_Lauryn_Hill %>% mutate(category = "The_Miseducation_of_Lauryn_Hill"),
   Brand_New_Life %>% mutate(category = "Brand_New_Life"),
-  Harp_Hip_Hop %>% mutate(category = "Harp_Hip_Hop")
+  Harp_Hip_Hop %>% mutate(category = "Harp_Hip_Hop"),
+  Classical_Harp_Mix %>% mutate(category = "Harp_Hip_Hop")
 )
 
 str(playlists)
@@ -41,133 +46,51 @@ specific_playlist <- playlists %>%
 Analysis {.storyboard}
 =========================================
 
-### W11, comparing tempo curves - by the time i get to phoenix
+### Introduction
 
-```{r}
-By_The_Time_I_Get_To_Phoenix_JimmyWebb <-
-  get_tidy_audio_analysis("2vfLu81LYr5ARMmUTplLD7") |>
-  select(segments) |>
-  unnest(segments)
+**How has the incorporation of the harp in “The Miseducation of Lauryn Hill” influenced contemporary Hip Hop styles of today?**
 
-By_The_Time_I_Get_To_Phoenix_JimmyWebb |>
-  mutate(loudness_max_time = start + loudness_max_time) |>
-  arrange(loudness_max_time) |>
-  mutate(delta_loudness = loudness_max - lag(loudness_max)) |>
-  ggplot(aes(x = loudness_max_time, y = pmax(0, delta_loudness))) +
-  geom_line() +
-  xlim(0, 30) +
-  theme_minimal() +
-  labs(x = "Time (s)", y = "Novelty")
+Following her departure from the Fugees, Lauryn Hill debuted a solo album titled – "The Miseducation of Lauryn Hill," released in 1998, which features a diverse range of musical elements; notably the harp which stemmed a prominent feature throughout the album; its incorporation contributing largely to Miseducation’s unique sound – an amalgamation of R&B, hip-hop, reggae, and soul. The album showcased Lauryn Hill's versatility as an artist as she challenged the boundaries of traditional hip-hop by repurposing a classical instrument such as the harp in tracks like "Every Ghetto, Every City", "Forgive Them Father", “When it Hurts So Bad’, “Final Hour” etc. The harp contributes to the album’s soulful yet intricate sound and overall cohesiveness. The harp's inclusion reflects her commitment to musical experimentation and her desire to push boundaries in hip-hop and r&b. Her ability to incorporate such unconventional elements into the world of hip-hop proves to us the tactful yet audacious nature as demonstrated by Ms. Hill. It is safe to say that this album has brought forth a level of influence amongst other contemporary artists of today.
+
+As a harpist, I am interested in the way that these women have reinvented the traditional sound of this classical instrument, and how they have paved a way for the harp in contemporary or even mainstream music. My aim is to analyse the different ways in which the Harp has been incorporated into contemporary hip-hop, with Lauryn Hill at the heart of my corpus. I intend to explore the similarities in terms of sound, and how it is coupled with its contemporary hip-hop and r&b counterparts through its energy, instrumentalness, and tempo.
+
+***
+
+<iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/0uEp9E98JB5awlA084uaIg?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+
+<iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/4zSmsHur194jO2hGCTt6Hn?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+
+<iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/3CNSWn2mISh7Ll3yJQbVEw?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+
+
+### The Harp according to hip-hop
+
+```{r second}
+ggplot(playlists) +
+  geom_point(aes(x = tempo, y = energy, color = category)) +
+  geom_smooth(aes(x = tempo, y = energy, group = category, color = category), method = 'loess', formula = 'y ~ x')
 ```
 
 ***
 
-analysis of novelty function goes here
+**Repurposing classical sound into Hip-Hop, a corpus of three different playlists** 
 
-```{r}
-By_The_Time_I_Get_To_Phoenix_DA <-
-  get_tidy_audio_analysis("0l2k4tdemioYYKIDtEv21c") |> # Change URI.
-  compmus_align(bars, segments) |>                     # Change `bars`
-  select(bars) |>                                      #   in all three
-  unnest(bars) |>                                      #   of these lines.
-  mutate(
-    pitches =
-      map(segments,
-        compmus_summarise, pitches,
-        method = "rms", norm = "euclidean"              # Change summary & norm.
-      )
-  ) |>
-  mutate(
-    timbre =
-      map(segments,
-        compmus_summarise, timbre,
-        method = "rms", norm = "euclidean"              # Change summary & norm.
-      )
-  )
+Needless to say, the corpus showcases a very interesting set of results with respect to each of the playlists' energy and tempo. In terms of energy, the graph shows that The Miseducation of Lauryn Hill displays a neutral fluctuation of energy levels, that peaks at an estimated 0.688 and drops at 0.375. In comparison to the playlist titled, 'harp hip-hop' consisting hip-hip songs that range from the 90's to the present such as 'Making Moves with Puff', 'Things Done Changed', '10 2 10', etc.; this playlist starts off with a peak of 0.875, and its lowest point at 0.499. Younger's album 'Brand New Life' on the other hand displays a lower range in energy; its lowest at 0.083, and its highest at 0.5. In terms of tempo, Ms. Hill's display shows the widest range which stretches from 75 bpm, to 172 bpm. 'Harp Hip Hop' ranges between 82.5 bpm to 140 bpm, and 'Brand New Life' which ranges between 65 bpm to 140 bpm. 
 
-By_The_Time_I_Get_To_Phoenix_DA |>
-  compmus_self_similarity(timbre, "cosine") |> 
-  ggplot(
-    aes(
-      x = xstart + xduration / 2,
-      width = xduration,
-      y = ystart + yduration / 2,
-      height = yduration,
-      fill = d
-    )
-  ) +
-  geom_tile() +
-  coord_fixed() +
-  scale_fill_viridis_c(guide = "none") +
-  theme_classic() +
-  labs(x = "", y = "")
-```
+Having put these three playlists to the test, the results were as unexpected as they were intriguing; this website hence aims to understand the unconventional juxtaposition of the classical instrument's seraphic sound within other genres of music. In doing so, I also aim to understand how Lauryn Hill's musical style has challenged the flexibility from traditional classical harp music.
 
-### W11, Novelty Functions of Holy Lands
+Like Lauryn Hill, Brandee Younger on the other hand being a contemporary harpist herself transforms the rare classical instrument into an instrument of the contemporary genres of R&B, hip-hop and jazz. Her album “Brand New Life” pays tribute to one of the OG ‘Hip-Harpists’ and pioneering jazz harpist, Dorothy Ashby. Ashby played a significant role in expanding the possibilities of the harp as a jazz instrument and contributed to the genre's evolution. The torch of evolution has since been passed on to Younger as she transports the harp into the hip-hop and r&b scene through collaborations with other renowned artists such as Drake, Beyonce, Josh Groban, and Lauryn Hill herself. 
 
-```{r}
-Holy_Lands <-
-  get_tidy_audio_analysis("0RG3Op4mFYBKtQmsPVLqBz") |>
-  select(segments) |>
-  unnest(segments)
+<iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/2ieEwjXUZH6oO7Nsx4GkSi?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
 
-Holy_Lands |>
-  mutate(loudness_max_time = start + loudness_max_time) |>
-  arrange(loudness_max_time) |>
-  mutate(delta_loudness = loudness_max - lag(loudness_max)) |>
-  ggplot(aes(x = loudness_max_time, y = pmax(0, delta_loudness))) +
-  geom_line() +
-  xlim(0, 30) +
-  theme_minimal() +
-  labs(x = "Time (s)", y = "Novelty")
-```
+<iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/1VxyLyOwMmdolzsqeWG0JO?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
 
-### W11, tempogram of Holy Lands
-```{r}
-Holy_Lands <- get_tidy_audio_analysis("7vvEe4KVLECYTHIT15NW1K")
+<iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/3CNSWn2mISh7Ll3yJQbVEw?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
 
-Holy_Lands |>
-  tempogram(window_size = 8, hop_size = 1, cyclic = FALSE) |>
-  ggplot(aes(x = time, y = bpm, fill = power)) +
-  geom_raster() +
-  scale_fill_viridis_c(guide = "none") +
-  labs(x = "Time (s)", y = "Tempo (BPM)") +
-  theme_classic()
-```
+compare to classixal typical harp song
 
-***
-
-analysis of tempogram goes here
-
-### W11, Key Histogram - Lauryn Hill and harp in hip hop
-```{r}
-Harp_Hip_Hop <- get_playlist_audio_features("", "2BwoJ5XofWPU8t6DaTx2Ll")
-The_Miseducation_of_Lauryn_Hill <- get_playlist_audio_features("", "7LgTeZfYx6A0h5qEim55ni")
-
-Harp_Hip_Hop$category = "Harp in Hip-Hop"
-The_Miseducation_of_Lauryn_Hill$category = "Lauryn Hill"
-
-combined <- rbind(Harp_Hip_Hop, The_Miseducation_of_Lauryn_Hill)
-
-compare_data <-
-  bind_rows(
-    Harp_Hip_Hop |> mutate(category = "Harp in Hip-Hop"),
-    The_Miseducation_of_Lauryn_Hill |> mutate(category = "The Miseducation of Lauryn Hill")
-  )
-
-ggplot(combined, aes(x = tempo, fill = category)) +
-  geom_histogram() +
-  facet_wrap(~category, scales = 'free') +
-  labs(title = "Histogram of tempo") + 
-  theme_minimal()
-```
-
-***
-
-analysis of histogram goes here
-
-### W10, Outliers of Lauryn Hill and Brandee Younger
-```{r}
+### Analysing outliers, Classical Harp vs. Contemprary Hip-Harp
+```{r third}
 The_Miseducation_of_Lauryn_Hill <-
   get_playlist_audio_features(
     "",
@@ -175,17 +98,17 @@ The_Miseducation_of_Lauryn_Hill <-
   ) |>
   slice(1:30) |>
   add_audio_analysis()
-This_Is_Brandee_Younger <-
+Classical_Harp_Mix <-
   get_playlist_audio_features(
     "",
-    "0zOVFcifZ9noFcCNOnJDv2"
+    "37i9dQZF1EIctTeUcn23Rp"
   ) |>
   slice(1:30) |>
   add_audio_analysis()
 outliers <-
   The_Miseducation_of_Lauryn_Hill |>
   mutate(genre = "The_Miseducation_of_Lauryn_Hill") |>
-  bind_rows(This_Is_Brandee_Younger |> mutate(genre = "This_Is_Brandee_Younger"))
+  bind_rows(Classical_Harp_Mix |> mutate(genre = "Classical_Harp_Mix"))
 
 outliers |>
   mutate(
@@ -221,10 +144,275 @@ outliers |>
 
 ***
 
-analysis of outliers goes here
+**What are the usual characteristics that outliers take on?**
 
-### W10, Key Histogram - Lauryn Hill and Brandee Younger
-```{r}
+In this analysis, I decided to focus on the characteristics of outliers through audio analysis. I formed my comparison on the same album by Lauryn Hill with a classical harp playlist featuring classical, conventional harp music. My reason in doing so was to not only identify the characteristics of outliers from commonalities within the stronger parts of the corpus, but to also understand the how differently Ms. Hill's interpretation of the harp has deviated from traditional classical harp music in terms of its tempo and volume. 
+
+**Findings:**
+
+The findings came to be rather unexpected, with tempo deviating in further within classical harp music than that of Ms. Hill's Hip-Hop/RnB approach. In terms of mean tempo, Hip-Hop takes on a wider range of mean tempo, from 50 BPM to 160 BPM, compared to classical harp that ranges 70 BPM to 140 BPM. This is due to:
+
+**Its' Musical Style and Structure**
+
+Classical music harp structures are complex, often featuring varied tempo markings, dynamic changes, and rhythmic complexities; that may involve rapid changes in tempo, time signature, and expression, leading to greater variation in tempo.
+
+Hip-hop, on the other hand, typically follows a more consistent rhythmic structure, characterized by repetitive patterns. While variations in tempo that tend to be less frequent and pronounced compared to classical music.
+
+**Instrumentation and Performance Techniques** 
+
+In classical harp, being a versatile instrument capable of producing a wide range of sounds and effects, may be played with techniques that introduce subtle variations in tempo, such as **rubato**, **accelerando**, or **ritardando**. These techniques are commonly employed in classical music performances to convey emotion and expression, allowing its tempo to deviate further than in Hip-Hop.
+
+Meanwhile in hip-hop, tempo variations are often more controlled, with beats programmed or sequenced electronically. While there may be variations in tempo for artistic effect, they are generally more uniform and predictable compared to the nuanced tempo changes found in classical harp performances,
+
+
+### Pitch class analysis - Lauryn Hill and Brandee Younger
+
+```{r fourth}
+When_it_hurts_so_bad <-
+    get_tidy_audio_analysis("3CNSWn2mISh7Ll3yJQbVEw") |>
+    select(segments) |>
+    unnest(segments) |>
+    select(start, duration, pitches)
+When_it_hurts_so_bad |>
+    mutate(pitches = map(pitches, compmus_normalise, "euclidean")) |>
+    compmus_gather_chroma() |>
+    ggplot(
+      aes(
+          x = start + duration / 2,
+          width = duration,
+          y = pitch_class,
+          fill = value
+        )
+      ) +
+      geom_tile() +
+      labs(x = "Time (s)", y = NULL, fill = "Magnitude") +
+      theme_minimal() +
+      scale_fill_viridis_c()
+```
+
+```{r fifth}
+Livin_And_Lovin_In_My_Own_Way <-
+    get_tidy_audio_analysis("640GNpFhsUQwcNks7cjp1u") |>
+    select(segments) |>
+    unnest(segments) |>
+    select(start, duration, pitches)
+Livin_And_Lovin_In_My_Own_Way |>
+    mutate(pitches = map(pitches, compmus_normalise, "euclidean")) |>
+    compmus_gather_chroma() |>
+    ggplot(
+      aes(
+          x = start + duration / 2,
+          width = duration,
+          y = pitch_class,
+          fill = value
+        )
+      ) +
+      geom_tile() +
+      labs(x = "Time (s)", y = NULL, fill = "Magnitude") +
+      theme_minimal() +
+      scale_fill_viridis_c()
+```
+
+***
+
+**Analysing Pitch class structures through w/ Lauryn Hill and Brandee Younger.**
+
+On this tab, I will be comparing the song "When It Hurts so Bad" by Lauryn Hill to Brandee Younger's "Livin' and Lovin' in My Own Way". For a lack of a better term, I felt that these 2 songs embodied the most clairvoyance to one another in terms of its keys, instrumentalisation, Hip-Hop elements and its pitch classes - which would be the focal point of comparison. 
+
+<iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/3CNSWn2mISh7Ll3yJQbVEw?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+
+<iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/640GNpFhsUQwcNks7cjp1u?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+
+**Findings:**
+
+In terms of its **chroma representations**, Livin' and Lovin' in My Own Way tends to feature a more varied imposition of pitch classes that tend to include variation and rapid changes especially in pitch classes. Throughout the song you are able to see pitch classes that are neither tied to a systematic tempo count, nor a specific set of pitch classes. For instance, in Younger's piece, we are able to see C remains a constant throughout the song, ending with a G with the highest peak in energy compared to the other parts of the song. 
+
+Ms Hill's piece 'When It Hurts So Bad' however, emulates an entirely showcases an entirely different array of pitch classes that seem to follow a more structured pattern, interchanging between E, D, and C#/Db in its intro, chorus, and bridge, with a steady incline in energy in B that peaks towards the end of the song. It is hence safe to say that similar to the previous outlier analysis, Younger takes a more classical approach in her complex and unpredictable structure, while Ms. Hill takes a more consistent and structured approach, similar to that of traditional Hip-hop music. 
+
+### Lauryn Hill by Kanye West
+
+```{r sixth}
+## All Falls Down (2004)
+Kanye_west_live <-
+get_tidy_audio_analysis("1Mj2wJxQaMq00HfYAkLCz6") |>
+select(segments) |>
+unnest(segments) |>
+select(start, duration, pitches)
+
+## All_Falls_Down_original (2005)
+Kanye_west_studio <-
+get_tidy_audio_analysis("5SkRLpaGtvYPhw02vZhQQ9") |>
+select(segments) |>
+unnest(segments) |>
+select(start, duration, pitches)
+```
+
+```{r seventh}
+compmus_long_distance(
+  Kanye_west_live |> mutate(pitches = map(pitches, compmus_normalise, "chebyshev")),
+  Kanye_west_studio |> mutate(pitches = map(pitches, compmus_normalise, "chebyshev")),
+  feature = pitches,
+  method = "euclidean"
+) |>
+  ggplot(
+    aes(
+      x = xstart + xduration / 2,
+      width = xduration,
+      y = ystart + yduration / 2,
+      height = yduration,
+      fill = d
+    )
+  ) +
+  geom_tile() +
+  coord_equal() +
+  labs(x = "Kanye West Live", y = "Kanye West Studio") +
+  theme_minimal() +
+  scale_fill_viridis_c(guide = NULL)
+```
+
+***
+
+**From the original, to its sampled, to the studio, to the stage**
+
+In this segment, I was curious as to how other artists' and their interpretations would differ from the original. The first piece that came to mind was Kanye West's 'All Falls Down' that sampled  Lauryn Hill's live sessions titled - 'Mystery of Iniquity', openly available on Spotify. From the original, he samples the main verse "All Falls Down" and harmonicity that Ms Hill sings as a recurring theme throughout the rap song. It ultimately forms the skeleton of Wests' version as he raps he remaining verses of the song. Unfortunately, there isn't an original studio version to Ms Hill's session if not that would have made the analysis all the more intriguing, but I digress. From there, I wanted to see how differently West's live and studio versions of the sampled piece would appear in a dynamic time warping graph.
+
+**Findings:**
+
+The results feature a rather similar set of findings for both versions; as observed, the live version seems to end faster than the studio version, with its verses remaining rather uniform throughout the song. Despite the results seem to lack in much structural complexity or changes, I think that this finding is rather interesting as it generalises the idea of music sampling in general. In 'Mystery of Iniquity', Ms Hill demonstrates her versatility and lyrical tact when it comes to rap and vocals by freestyling verses that manages to capture the audience's attention conspicuously throughout. Much unlike West's version that has a more uniform approach to this piece, likewise having the same effect on its audience. 
+
+<iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/5KZwRD3KklSP73jnLoNWtF?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+
+<iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/5SkRLpaGtvYPhw02vZhQQ9?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+
+<iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/1Mj2wJxQaMq00HfYAkLCz6?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+
+### By the Time I Get to Phoenix
+```{r eighth}
+By_The_Time_I_Get_To_Phoenix_JW <-
+  get_tidy_audio_analysis("2vfLu81LYr5ARMmUTplLD7") |> # Change URI.
+  compmus_align(bars, segments) |>                     # Change `bars`
+  select(bars) |>                                      #   in all three
+  unnest(bars) |>                                      #   of these lines.
+  mutate(
+    pitches =
+      map(segments,
+        compmus_summarise, pitches,
+        method = "mean", norm = "manhattan"              # Change summary & norm.
+      )
+  ) |>
+  mutate(
+    timbre =
+      map(segments,
+        compmus_summarise, timbre,
+        method = "mean", norm = "manhattan"              # Change summary & norm.
+      )
+  )
+
+By_The_Time_I_Get_To_Phoenix_JW |>
+  compmus_self_similarity(timbre, "manhattan") |> 
+  ggplot(
+    aes(
+      x = xstart + xduration / 2,
+      width = xduration,
+      y = ystart + yduration / 2,
+      height = yduration,
+      fill = d
+    )
+  ) +
+  geom_tile() +
+  coord_fixed() +
+  scale_fill_viridis_c(guide = "none") +
+  theme_classic() +
+  labs(x = "", y = "")
+
+By_The_Time_I_Get_To_Phoenix_JW |>
+  compmus_self_similarity(pitches, "manhattan") |> 
+  ggplot(
+    aes(
+      x = xstart + xduration / 2,
+      width = xduration,
+      y = ystart + yduration / 2,
+      height = yduration,
+      fill = d
+    )
+  ) +
+  geom_tile() +
+  coord_fixed() +
+  scale_fill_viridis_c(guide = "none") +
+  theme_classic() +
+  labs(x = "", y = "")
+```
+
+```{r ninth}
+By_The_Time_I_Get_To_Phoenix_DA <-
+  get_tidy_audio_analysis("0l2k4tdemioYYKIDtEv21c") |> # Change URI.
+  compmus_align(bars, segments) |>                     # Change `bars`
+  select(bars) |>                                      #   in all three
+  unnest(bars) |>                                      #   of these lines.
+  mutate(
+    pitches =
+      map(segments,
+        compmus_summarise, pitches,
+        method = "mean", norm = "manhattan"              # Change summary & norm.
+      )
+  ) |>
+  mutate(
+    timbre =
+      map(segments,
+        compmus_summarise, timbre,
+        method = "mean", norm = "manhattan"              # Change summary & norm.
+      )
+  )
+
+By_The_Time_I_Get_To_Phoenix_DA |>
+  compmus_self_similarity(timbre, "manhattan") |> 
+  ggplot(
+    aes(
+      x = xstart + xduration / 2,
+      width = xduration,
+      y = ystart + yduration / 2,
+      height = yduration,
+      fill = d
+    )
+  ) +
+  geom_tile() +
+  coord_fixed() +
+  scale_fill_viridis_c(guide = "none") +
+  theme_classic() +
+  labs(x = "", y = "")
+
+By_The_Time_I_Get_To_Phoenix_DA |>
+  compmus_self_similarity(pitches, "manhattan") |> 
+  ggplot(
+    aes(
+      x = xstart + xduration / 2,
+      width = xduration,
+      y = ystart + yduration / 2,
+      height = yduration,
+      fill = d
+    )
+  ) +
+  geom_tile() +
+  coord_fixed() +
+  scale_fill_viridis_c(guide = "none") +
+  theme_classic() +
+  labs(x = "", y = "")
+```
+
+*** 
+
+**Jimmy Webb: **
+In the original version (top), we are able to see that its chroma patterns are able to pick up on 6 bars of the piece that seem to develop linearly within the respective bars. The two longest bars seem to take place in the middle of the song, likely its chorus, followed by two more shortened bars that seem to close the song off. Its timbral representations seem to remain rather constant throughout the first three quarters of the song, followed by a slow fade out at the end. 
+
+**Dorothy Ashby: **
+I decided to form a comparison on the piece with a covered version by Dorothy Ashby, which featres a rather intricate tatum count and overall complex outtake on the original. One might think that a song covered by the harp would have a lower tatum count and mellow harmonicity, however, Dorothy Ashby takes an opposite approach to that with a version that bustles in its energy and valence levels. Already by looking at the cover's chroma and timbre features, we are able to detect the song's intensity and inconstant nature throughout - an entirely different aura to what was seen in Webb's version. Immediately, the chroma representations feature are almost indistinguishable, with the 6 original verses that seem to concatenate into each other. It is only towards the end final three verses of the song that we see changes in hues that represent Ashby's attemps in closing off the piece. Its timbre features similar depicts the song's hectic nature which seems to break into uniformity only towards the final three verses of the song, which is then followed by a fade-out. 
+
+<iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/2vfLu81LYr5ARMmUTplLD7?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+
+<iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/0l2k4tdemioYYKIDtEv21c?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+
+### Analysis of Keys 
+```{r tenth}
 This_Is_Brandee_Younger <- get_playlist_audio_features("", "0zOVFcifZ9noFcCNOnJDv2")
 The_Miseducation_of_Lauryn_Hill <- get_playlist_audio_features("", "7LgTeZfYx6A0h5qEim55ni")
 
@@ -248,13 +436,15 @@ ggplot(combined, aes(x = key_name, fill = category)) +
 
 ***
 
-In this key histogram graph, my aim was to compare the two different artists' songs in terms of the keys they generally use. 
+**Analysis of Keys - what keys do these artists generally use?**
 
-In order to do so, I decided to form my comparison around two playlists - 'The Miseducation of Lauryn Hill' and a spotify radio playlist based off of Younger's most popular tracks and collaborations titled 'This is Brandee Younger'. I chose to work with these two datasets as I wanted to see how differently both artists and their interpretations of the harp have been integrated into the hip-hop genre in their own styles.
+In this key histogram graph, my aim was to compare the two different artists' songs in terms of the keys they use. 
 
-### W10, Chordograms - Brandee Younger
+In order to do so, I decided to form my comparison around two playlists - 'The Miseducation of Lauryn Hill' and a spotify radio playlist based off of Younger's most popular tracks and collaborations titled 'This is Brandee Younger'. I chose to work with these two datasets as I wanted to see how differently both artists and their interpretations of the harp have been integrated into the hip-hop genre in their own styles. As seen in the graph, A, E, and C tend to stand out in Younger's corpus while A, C#, and G tend to stand out the most. 
 
-```{r}
+### Holy Lands in a chordogram
+
+```{r eleventh}
 circshift <- function(v, n) {
   if (n == 0) v else c(tail(v, n), head(v, -n))
 }
@@ -342,9 +532,9 @@ key_templates <-
   )
 ```
 
-```{r}
-By_The_Time_I_Get_To_Phoenix <-
-  get_tidy_audio_analysis("0l2k4tdemioYYKIDtEv21c") |>
+```{r twelfth}
+Holy_Lands <-
+  get_tidy_audio_analysis("0RG3Op4mFYBKtQmsPVLqBz") |>
   compmus_align(sections, segments) |>
   select(sections) |>
   unnest(sections) |>
@@ -357,8 +547,8 @@ By_The_Time_I_Get_To_Phoenix <-
   )
 ```
 
-```{r}
-By_The_Time_I_Get_To_Phoenix |> 
+```{r thirteenth}
+Holy_Lands |> 
   compmus_match_pitch_template(
     key_templates,         # Change to chord_templates if descired
     method = "euclidean",  # Try different distance metrics
@@ -375,245 +565,139 @@ By_The_Time_I_Get_To_Phoenix |>
 
 ***
 
-In this week's corpus, I've decided to conduct my analysis on Dorothy Ashby. I chose to focus on Dorothy Ashby's most popular pieces as I wanted to focus my analysis purely on how Ashby as a harpist has integrated the classical instrument in an unconventional manner into hip-hop and RnB. 
+In this **chordogram visualisation**, I chose to focus on Makaya McCraven's pieces titles - 'Holy Lands' as I was interested in the way he fuses the sound of the harp so intrinsically with elements of jazz, on how McCraven as a drummer, composer, and producer has integrated the classical instrument in his own unconventional way into Jazz and RnB. I also wanted to see if Spotify was able to detect a wide array of keys played at the first 1:30 of the song, and how these results would be portrayed in a chordogram. 
 
-The original piece by Jimmy Webb, "By the Time I Get to Phoenix" was originally written as a country song and released in 1967. It was covered two years later by Ashby in 1969 in her iconic soul-jazz formula - recreating the track in an entirely different sound through a pastiche of jazz, funk, and classical music. 
+**Findings**
 
-I decided to analyse this piece via the chordogram graph and the results were rather interesting but did not come out as what I was anticipating. The graph shows that the piece 
+The results were rather interesting but did not come out as what I was anticipating. The graph shows that the piece according to its segments and with its distances measured by manhattan. Hearing the song itself, I anticipated a much more disorderly pattern to be formed. The graph showed that a spike in B maj, G# min, Eb Maj, Ab maj at the start and remained rather mellowed throughout, and peaking once again just after 2:00 in D# min, B maj, Bb maj, Eb maj, Ab maj, Db maj, and Gb maj. 
 
-### W9, Self-similarity Matrice: Brandee Younger
+<iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/0RG3Op4mFYBKtQmsPVLqBz?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
 
-```{r}
-One_For_My_DJ <-
-  get_tidy_audio_analysis("4FTuFKKU0lHZ4wE1Amc9Ty") |> # Change URI.
-  compmus_align(bars, segments) |>                     # Change `bars`
-  select(bars) |>                                      #   in all three
-  unnest(bars) |>                                      #   of these lines.
-  mutate(
-    pitches =
-      map(segments,
-        compmus_summarise, pitches,
-        method = "rms", norm = "euclidean"              # Change summary & norm.
-      )
-  ) |>
-  mutate(
-    timbre =
-      map(segments,
-        compmus_summarise, timbre,
-        method = "rms", norm = "euclidean"              # Change summary & norm.
-      )
-  )
+### Tempograms With Craig Mack
+```{r fourteenth}
+RAS <- get_tidy_audio_analysis("40RYtDQwVLnfH4WzhxEqOQ")
 
-One_For_My_DJ |>
-  compmus_self_similarity(timbre, "cosine") |> 
-  ggplot(
-    aes(
-      x = xstart + xduration / 2,
-      width = xduration,
-      y = ystart + yduration / 2,
-      height = yduration,
-      fill = d
-    )
-  ) +
-  geom_tile() +
-  coord_fixed() +
+RAS |>
+  tempogram(window_size = 8, hop_size = 2, cyclic = FALSE) |>
+  ggplot(aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
   scale_fill_viridis_c(guide = "none") +
-  theme_classic() +
-  labs(x = "", y = "")
-```
-```{r}
-One_For_My_DJ <-
-  get_tidy_audio_analysis("4FTuFKKU0lHZ4wE1Amc9Ty") |> # Change URI.
-  compmus_align(bars, segments) |>                     # Change `bars`
-  select(bars) |>                                      #   in all three
-  unnest(bars) |>                                      #   of these lines.
-  mutate(
-    pitches =
-      map(segments,
-        compmus_summarise, pitches,
-        method = "rms", norm = "euclidean"              # Change summary & norm.
-      )
-  ) |>
-  mutate(
-    timbre =
-      map(segments,
-        compmus_summarise, timbre,
-        method = "rms", norm = "euclidean"              # Change summary & norm.
-      )
-  )
+  labs(x = "Time (s)", y = "Tempo (BPM)") +
+  theme_classic()
 
-One_For_My_DJ |>
-  compmus_self_similarity(timbre, "cosine") |> 
-  ggplot(
-    aes(
-      x = xstart + xduration / 2,
-      width = xduration,
-      y = ystart + yduration / 2,
-      height = yduration,
-      fill = d
-    )
-  ) +
-  geom_tile() +
-  coord_fixed() +
+RAS |>
+  tempogram(window_size = 8, hop_size = 1, cyclic = TRUE) |>
+  ggplot(aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
   scale_fill_viridis_c(guide = "none") +
-  theme_classic() +
-  labs(x = "", y = "")
-```
-
-***
-
-On this page I have a self-similarity matrice of Brandee Younger's track titled 'One for My DJ'. I was very interested in working on this track as I intrigued to see if the patterns displayed on the matrice would be just as lively as listening to the track. Due to the track's high energy and valence levels alongside its fast tempo and tatum, I expected to see a rather matrice with much variation throughout. Instead, the results came out plain sailing. Due to time constraint, I am still working on the graph as I would like to compare the track according to its chroma and timbre. 
-
-### W9, Cepstrograms: Brandee Younger
-
-```{r}
-Livin_And_Lovin_My_Own_Way <-
-  get_tidy_audio_analysis("640GNpFhsUQwcNks7cjp1u") |> # Change URI.
-  compmus_align(beats, segments) |>                     # Change `bars`
-  select(beats) |>                                      #   in all three
-  unnest(beats) |>                                      #   of these lines.
-  mutate(
-    pitches =
-      map(segments,
-        compmus_summarise, pitches,
-        method = "mean", norm = "manhattan"              # Change summary & norm.
-      )
-  ) |>
-  mutate(
-    timbre =
-      map(segments,
-        compmus_summarise, timbre,
-        method = "mean", norm = "manhattan"              # Change summary & norm.
-      )
-  )
-
-Livin_And_Lovin_My_Own_Way |>
-  compmus_gather_timbre() |>
-  ggplot(
-    aes(
-      x = start + duration / 2,
-      width = duration,
-      y = basis,
-      fill = value
-    )
-  ) +
-  geom_tile() +
-  labs(x = "Time (s)", y = NULL, fill = "Magnitude") +
-  scale_fill_viridis_c() +                              
+  labs(x = "Time (s)", y = "Tempo (BPM)") +
   theme_classic()
 ```
 
 ***
-In this week's analysis, I decided to focus on Brandee Younger, more specifically the track titled "Livin' and Lovin' My Own Way". Just by the first listen of the track, I was immediately intrigued by how the first 4 counts of the harp were accompanied by the percussion which embodied a typical hip-hop sound. As the song progresses within the next 4 counts, a slight scratch sound effect is layered onto the mix - a complete juxtaposition to what you would normally hear in conventonal harp tracks. Entering the verse, the song progresses in a seemlingly faster beat when in reality the beat in a single bar itself gets more filled. The overall timbre seems to become more dense over time as tatums between notes and percussions played grow more frequent. 
 
-The results of the song are as shown: within the cepstrogram graph I opted summarise beats as it was my focal point in this analysis. Subsequently, I found that the cepstrogram looked most appealing in a "mean" and "manhattan" format as it visualised the high-density beat count that can be heard whilst listening to the track. 
+**Tempo analysis with Clipse and Ab Liva**
 
-### W8, DTW: Kanye West
+Upon listening to this track, I was immediately intrigued by its consistent tempo paired with its unusual harp scale that seemed to echo throughout the entire song. Hence, a uniform pattern was what came to mind initially and in fact the complete opposite of the results that are shown in the graph. The tempo seems to maintain a constant line at about 370 BPM, while deviating from that tempo to as low as 190 BPM to almost 600 BPM. 
 
-```{r}
-## All Falls Down (2004)
-Kanye_west_live <-
-get_tidy_audio_analysis("1Mj2wJxQaMq00HfYAkLCz6") |>
-select(segments) |>
-unnest(segments) |>
-select(start, duration, pitches)
+<iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/40RYtDQwVLnfH4WzhxEqOQ?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
 
-## All_Falls_Down_original (2005)
-Kanye_west_studio <-
-get_tidy_audio_analysis("5SkRLpaGtvYPhw02vZhQQ9") |>
-select(segments) |>
-unnest(segments) |>
-select(start, duration, pitches)
+
+### Clustering and Cross-validation
+
+```{r fifteenth}
+get_conf_mat <- function(fit) {
+  outcome <- .get_tune_outcome_names(fit)
+  fit |> 
+    collect_predictions() |> 
+    conf_mat(truth = outcome, estimate = .pred_class)
+}  
+
+get_pr <- function(fit) {
+  fit |> 
+    conf_mat_resampled() |> 
+    group_by(Prediction) |> mutate(precision = Freq / sum(Freq)) |> 
+    group_by(Truth) |> mutate(recall = Freq / sum(Freq)) |> 
+    ungroup() |> filter(Prediction == Truth) |> 
+    select(class = Prediction, precision, recall)
+} 
+
+harpmix <-
+  get_playlist_audio_features("CM_Harp_Corpus", "0nI4ja6yVLOJAmBmeCmYeF") |>
+  add_audio_analysis() |>
+  mutate(
+    segments = map2(segments, key, compmus_c_transpose),
+    pitches =
+      map(segments,
+        compmus_summarise, pitches,
+        method = "mean", norm = "manhattan"
+      ),
+    timbre =
+      map(
+        segments,
+        compmus_summarise, timbre,
+        method = "mean"
+      )
+  ) |>
+  mutate(pitches = map(pitches, compmus_normalise, "clr")) |>
+  mutate_at(vars(pitches, timbre), map, bind_rows) |>
+  unnest(cols = c(pitches, timbre))
+
+harpmix_juice <-
+  recipe(
+    track.name ~
+      danceability +
+      energy +
+      loudness +
+      speechiness +
+      acousticness +
+      instrumentalness +
+      valence +
+      tempo,
+    data = harpmix
+  ) |>
+  step_center(all_predictors()) |>
+  step_scale(all_predictors()) |> 
+  # step_range(all_predictors()) |> 
+  prep(harpmix |> mutate(track.name = str_trunc(track.name, 20))) |>
+  juice() |>
+  column_to_rownames("track.name")
+
+harpmix_dist <- dist(harpmix_juice, method = "euclidean")
+
+harpmix_dist |> 
+  hclust(method = "single") |> # Try single, average, and complete.
+  dendro_data() |>
+  ggdendrogram()
+
+heatmaply(
+  harpmix_juice,
+  hclustfun = hclust,
+  hclust_method = "average",  # Change for single, average, or complete linkage.
+  dist_method = "euclidean"
+)
 ```
-
-```{r}
-compmus_long_distance(
-  Kanye_west_live |> mutate(pitches = map(pitches, compmus_normalise, "chebyshev")),
-  Kanye_west_studio |> mutate(pitches = map(pitches, compmus_normalise, "chebyshev")),
-  feature = pitches,
-  method = "euclidean"
-) |>
-  ggplot(
-    aes(
-      x = xstart + xduration / 2,
-      width = xduration,
-      y = ystart + yduration / 2,
-      height = yduration,
-      fill = d
-    )
-  ) +
-  geom_tile() +
-  coord_equal() +
-  labs(x = "Kanye West Live", y = "Kanye West Studio") +
-  theme_minimal() +
-  scale_fill_viridis_c(guide = NULL)
-```
-
 ***
 
-In this Dynamic time warping graph, I decided to work with Kanye West's 'All Falls Down' as he sampled one of Lauryn Hill's songs titled - 'Mystery of Iniquity'. I chose to analyse this song as I was curious to see how different an artist would repurpose and interpret one of Hill's songs in a different manner. From there, I wanted to see how differently they would appear in its studio versus its live version.
+**The Harp in Hip-hop and RnB**
 
-### W8, Chromagram: Lauryn Hill
+In this final section, I shortlisted my entire corpus of songs into a playlist of 57 songs and analysed them in a cluster sequence as seen within the dendogram appended by a heatmap. Across the corpus, acousticness and instrumentalness came clustered together paired with tempo. As anticipated, danceability and valence was grouped together with energy, loudness, and speechiness. 
+In terms of speechiness, the general outliers that stood out were Lauryn Hill's 'To Zion' and Kanye West's 'All Falls Down', naturally as these songs seem to exhibit a heavy balance on rap verses paired with harp instrumentals, though they don't seem to be outliers on the instrumentalness scale. 
 
-```{r}
-When_it_hurts_so_bad <-
-    get_tidy_audio_analysis("3CNSWn2mISh7Ll3yJQbVEw") |>
-    select(segments) |>
-    unnest(segments) |>
-    select(start, duration, pitches)
-When_it_hurts_so_bad |>
-    mutate(pitches = map(pitches, compmus_normalise, "euclidean")) |>
-    compmus_gather_chroma() |>
-    ggplot(
-      aes(
-          x = start + duration / 2,
-          width = duration,
-          y = pitch_class,
-          fill = value
-        )
-      ) +
-      geom_tile() +
-      labs(x = "Time (s)", y = NULL, fill = "Magnitude") +
-      theme_minimal() +
-      scale_fill_viridis_c()
-```
+'To Zion' remains a constant outlier as it stands out once again on the tempo scale (an interesting finding), along with other harp tracks titled, 'Dysbarism' and 'Tall Tales'. 
 
-***
+In terms of energy, the general outliers were interestingly 'The Golden Law' - a hip-hop track and 'Intersections' - a harp track both of which are of different genres. 
 
-For my chromagram, I decided to use the song 'When It Hurts So Bad' by Lauryn Hill, and structured the chromagram through the euclidean format. My reason in doing so, is because I felt that this format was easiest to understand. 
+In terms of danceability and valence, outliers were 'Making Moves with Puff', 'Angel Dust', 'Nas is Like'-- all of which are hip-hop tracks.
 
-### Introduction: How has the incorporation of the harp in “The Miseducation of Lauryn Hill” influenced contemporary Hip Hop styles of today?
-
-```{r static_plot, fig.width=10, fig.height=6, echo=FALSE, message=FALSE, warning=FALSE}
-ggplot(specific_playlist) +
-  geom_point(aes(x = tempo, y = energy, color = category)) +
-  geom_smooth(aes(x = tempo, y = energy, group = category, color = category), method = 'loess', formula = 'y ~ x') +
-  ggtitle("The_Miseducation_of_Lauryn_Hill Playlist")
-```
-
-*** 
-Following her departure from the Fugees, Lauryn Hill debuted a solo album titled – "The Miseducation of Lauryn Hill," released in 1998, which features a diverse range of musical elements; notably the harp which stemmed a prominent feature throughout the album; its incorporation contributing largely to Miseducation’s unique sound – an amalgamation of R&B, hip-hop, reggae, and soul. The album showcased Lauryn Hill's versatility as an artist as she challenged the boundaries of traditional hip-hop by repurposing a classical instrument such as the harp in tracks like "Every Ghetto, Every City", "Forgive Them Father", “When it Hurts So Bad’, “Final Hour” etc. The harp contributes to the album’s soulful yet intricate sound and overall cohesiveness. The harp's inclusion reflects her commitment to musical experimentation and her desire to push boundaries in hip-hop and r&b. Her ability to incorporate such unconventional elements into the world of hip-hop proves to us the tactful yet audacious nature as demonstrated by Ms. Hill. It is safe to say that this album has brought forth a level of influence amongst other contemporary artists of today.
-
-
-
-Harpin' Out With Lauryn Hill {data-height=700} 
------------------------------------------------------------------------
-
-### The Harp according to hip-hop
-
-```{r}
-
-ggplot(playlists) +
-  geom_point(aes(x = tempo, y = energy, color = category)) +
-  geom_smooth(aes(x = tempo, y = energy, group = category, color = category), method = 'loess', formula = 'y ~ x')
-```
-
-***
-Like Lauryn Hill, Brandee Younger on the other hand being a contemporary harpist herself transforms the rare classical instrument into an instrument of the contemporary genres of R&B, hip-hop and jazz. Her album “Brand New Life” pays tribute to one of the OG ‘Hip-Harpists’ and pioneering jazz harpist, Dorothy Ashby. Ashby played a significant role in expanding the possibilities of the harp as a jazz instrument and contributed to the genre's evolution. The torch of evolution has since been passed on to Younger as she transports the harp into the hip-hop and r&b scene through collaborations with other renowned artists such as Drake, Beyonce, Josh Groban, and Lauryn Hill herself.
+<iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/0nI4ja6yVLOJAmBmeCmYeF?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
 
 ### Conclusion
 
-As a harpist, I am interested in the way that these women have reinvented the traditional sound of this classical instrument, and how they have paved a way for the harp in contemporary or even mainstream music. My aim is to analyse the different ways in which the Harp has been incorporated into contemporary hip-hop, with Lauryn Hill at the heart of my corpus. I intend to explore the similarities in terms of sound, and how it is coupled with its contemporary hip-hop and r&b counterparts through its energy, instrumentalness, and tempo.
+**Main takeaways**
 
-Needless to say, the corpus showcases a very interesting set of results with respect to each of the playlists' energy and tempo. In terms of energy, the graph shows that The Miseducation of Lauryn Hill displays a neutral fluctuation of energy levels, that peaks at an estimated 0.688 and drops at 0.375. In comparison to the playlist titled, 'harp hip-hip' consisting hip-hip songs that range from the 90's to the present such as 'Making Moves with Puff', 'Things Done Changed', '10 2 10', etc.; this playlist starts off with a peak of 0.875, and its lowest point at 0.499. Younger's album 'Brand New Life' on the other hand displays a lower range in energy; its lowest at 0.083, and its highest at 0.5. In terms of tempo, Ms. Hill's display shows the widest range which stretches from 75 bpm, to 172 bpm. 'Harp Hip Hop' ranges between 82.5 bpm to 140 bpm, and 'Brand New Life' which ranges between 65 bpm to 140 bpm. 
+Going in to computational musicology and going through the different stages in piecing this portfolio together has been an insightful process! As a harpist with little to no background in computing, I'd say that creating this portfolio has definitely opened my eyes up to understanding music not just from an intuitive level, but from a theoretical level. The level of analysis allows us as researchers to zoom in on the tiniest details of the songs we love and to understand what makes them the way they are, and how they are related to or inspired by other forms of music. (You'd be surprised to see how interconnected music is!)
 
+Throughout the portfolio, I did not expect to see that there were so many artists across different genres - hip-hop, RnB, jazz, and classical that have taken the sound of the harp and made it their own. It also brought to light the versatility behind this classical instrument, and how its sound can be to be explored and experimented with in many different ways. As Ms Hill has demonstrated in her album, she has managed to make full use of the harp's unique sound and powerful tonality in creating a distinctive atmosphere that sets her album apart. 'To Zion' and 'When It Hurts so Bad' perfectly incorporate the harp's intricate arpeggios and glissandos into layers of texture that add depth to the tracks. These layers create a intricacy and elegance to the sound which juxtaposes the genre of hip-hop and RnB in which it is set in. 
+
+Growing up it was always rare to see the harp as practiced in different settings (especially in mainstream), so it was very nice that Spotify's interface had allowed me to discover entirely new tracks that were unheard of before, and to see harpists themselves challenge the boundaries of the harp. Seeing how Lauryn Hill, Brandee Younger, and other hip-hop artists have inspired one another, this opens up platforms for collaborative opportunity amongst different artists (from rap to classical). What I took away from this corpus is the importance of bringing artists together; by marrying different skills and perspectives that can innovate new forms of musical styles.
