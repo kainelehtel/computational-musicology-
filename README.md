@@ -6,4 +6,4 @@ Like Lauryn Hill, Brandee Younger on the other hand being a contemporary harpist
 
 As a harpist, I am interested in the way that these women have reinvented the traditional sound of this classical instrument, and how they have paved a way for the harp in contemporary or even mainstream music. My aim is to analyse the different ways in which the Harp has been incorporated into contemporary hip-hop, with Lauryn Hill at the heart of my corpus. I intend to explore the similarities in terms of sound, and how it is coupled with its contemporary hip-hop and r&b counterparts through its energy, instrumentalness, and tempo. 
 
-testing so i know git recognises this
+test
